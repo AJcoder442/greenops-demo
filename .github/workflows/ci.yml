@@ -1,0 +1,230 @@
+# File 1: .github/workflows/ci.yml
+name: 🌱 GreenOps CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 6:00 UTC for regular activity
+    - cron: '0 6 * * *'
+
+jobs:
+  # Job 1: Code Quality Checks (Fast)
+  quality-check:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black pylint
+    
+    - name: 🧹 Run linting
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        black --check .
+        pylint --errors-only backend/
+    
+    - name: ✅ Quality check complete
+      run: echo "Code quality checks passed! 🎉"
+
+  # Job 2: Testing (Medium duration)
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quality-check
+    
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🐍 Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov requests flask sqlalchemy
+    
+    - name: 🧪 Run tests
+      run: |
+        # Simulate test execution with some computation
+        python -c "
+        import time
+        import math
+        
+        # Simulate test workload
+        for i in range(1000):
+            result = sum(math.sqrt(j) for j in range(100))
+        
+        print(f'Tests completed with result: {result}')
+        print('All tests passed! ✅')
+        "
+    
+    - name: 📊 Generate test report
+      run: |
+        echo "Test Report for Python ${{ matrix.python-version }}" > test-report.txt
+        echo "Date: $(date)" >> test-report.txt
+        echo "Status: PASSED ✅" >> test-report.txt
+
+  # Job 3: Build & Package (Longer duration)
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: 📦 Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel setuptools
+    
+    - name: 🏗️ Build backend
+      run: |
+        # Simulate build process with computation
+        python -c "
+        import time
+        import json
+        import os
+        
+        # Simulate compilation/build work
+        print('Building GreenOps backend...')
+        time.sleep(2)
+        
+        # Create build artifacts
+        build_info = {
+            'version': '1.0.0',
+            'build_time': '$(date)',
+            'components': ['api', 'analytics', 'fetchers'],
+            'energy_optimized': True
+        }
+        
+        with open('build-info.json', 'w') as f:
+            json.dump(build_info, f, indent=2)
+        
+        print('Backend build completed! 🎉')
+        "
+    
+    - name: 🌐 Build frontend
+      run: |
+        # Simulate frontend build
+        python -c "
+        import time
+        import os
+        
+        print('Building React frontend...')
+        time.sleep(3)  # Simulate npm build time
+        
+        # Create mock build directory
+        os.makedirs('frontend/build', exist_ok=True)
+        with open('frontend/build/index.html', 'w') as f:
+            f.write('<html><body><h1>GreenOps Dashboard</h1></body></html>')
+        
+        print('Frontend build completed! 🎉')
+        "
+    
+    - name: 🗜️ Create distribution
+      run: |
+        # Package the application
+        tar -czf greenops-build.tar.gz backend/ frontend/ *.md
+        echo "📦 Distribution package created: greenops-build.tar.gz"
+
+  # Job 4: Security Scan (Variable duration)
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔒 Run security checks
+      run: |
+        # Simulate security scanning with variable workload
+        python -c "
+        import time
+        import random
+        
+        print('Running security scans...')
+        
+        # Variable duration scan (2-8 seconds)
+        scan_time = random.uniform(2, 8)
+        time.sleep(scan_time)
+        
+        vulnerabilities = random.randint(0, 2)
+        if vulnerabilities == 0:
+            print('✅ No security vulnerabilities found!')
+        else:
+            print(f'⚠️  {vulnerabilities} low-risk vulnerabilities detected')
+            
+        print(f'Security scan completed in {scan_time:.1f} seconds')
+        "
+
+  # Job 5: Deploy (Simulation - Long running)
+  deploy:
+    name: 🚀 Deploy Application  
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [build, security]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🚀 Deploy to staging
+      run: |
+        # Simulate deployment with longer execution
+        python -c "
+        import time
+        
+        print('🚀 Starting deployment to staging environment...')
+        
+        # Simulate deployment steps
+        stages = [
+            ('Preparing environment', 3),
+            ('Uploading artifacts', 4), 
+            ('Running database migrations', 2),
+            ('Starting services', 3),
+            ('Running health checks', 2),
+            ('Finalizing deployment', 2)
+        ]
+        
+        for stage, duration in stages:
+            print(f'  {stage}...')
+            time.sleep(duration)
+            print(f'  ✅ {stage} completed')
+        
+        print('🎉 Deployment completed successfully!')
+        "
+
+
