@@ -1,0 +1,58 @@
+ #File 2: .github/workflows/energy-analysis.yml
+name: ⚡ Energy Analysis
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Run twice daily for more data points
+    - cron: '0 12 * * *'
+    - cron: '0 18 * * *'
+
+jobs:
+  energy-benchmark:
+    name: ⚡ Energy Benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: ⚡ CPU-intensive benchmark
+      run: |
+        python -c "
+        import time
+        import math
+        
+        print('Running CPU-intensive energy benchmark...')
+        start_time = time.time()
+        
+        # CPU-bound computation to simulate high energy usage
+        result = 0
+        for i in range(10000):
+            for j in range(1000):
+                result += math.sqrt(i * j + 1)
+        
+        duration = time.time() - start_time
+        print(f'Benchmark completed in {duration:.2f} seconds')
+        print(f'Energy-intensive computation result: {result:.2e}')
+        "
+    
+    - name: 💾 Memory-intensive benchmark  
+      run: |
+        python -c "
+        import time
+        
+        print('Running memory-intensive benchmark...')
+        
+        # Memory allocation to simulate different workload
+        large_lists = []
+        for i in range(100):
+            large_list = [j for j in range(10000)]
+            large_lists.append(large_list)
+            time.sleep(0.1)
+        
+        print(f'Created {len(large_lists)} large data structures')
+        print('Memory benchmark completed')
+        "
