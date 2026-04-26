@@ -10,7 +10,7 @@ jobs:
   # Job 1: Code Quality Checks (Fast)
   quality-check:
     name: 🔍 Code Quality
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     
     steps:
@@ -28,7 +28,7 @@ jobs:
   # Job 2: Testing (Medium duration)
   test:
     name: 🧪 Run Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     needs: quality-check
     
@@ -62,7 +62,7 @@ jobs:
   # Job 3: Build & Package (Longer duration)
   build:
     name: 🏗️ Build Application
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     needs: test
     
@@ -91,7 +91,7 @@ jobs:
   # Job 4: Deploy (Simulation - Long running)
   deploy:
     name: 🚀 Deploy Application  
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 25
     needs: build
     if: github.ref == 'refs/heads/main'
